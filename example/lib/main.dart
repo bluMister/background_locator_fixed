@@ -17,30 +17,28 @@ import 'location_service_repository.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
   ReceivePort port = ReceivePort();
 
   String logStr = '';
-  bool isRunning;
-  LocationDto lastLocation;
+  bool? isRunning;
+  LocationDto? lastLocation;
 
   @override
   void initState() {
     super.initState();
 
-    if (IsolateNameServer.lookupPortByName(
-            LocationServiceRepository.isolateName) !=
-        null) {
-      IsolateNameServer.removePortNameMapping(
-          LocationServiceRepository.isolateName);
+    if (IsolateNameServer.lookupPortByName(LocationServiceRepository.isolateName) != null) {
+      IsolateNameServer.removePortNameMapping(LocationServiceRepository.isolateName);
     }
 
-    IsolateNameServer.registerPortWithName(
-        port.sendPort, LocationServiceRepository.isolateName);
+    IsolateNameServer.registerPortWithName(port.sendPort, LocationServiceRepository.isolateName);
 
     port.listen(
       (dynamic data) async {
@@ -58,7 +56,10 @@ class _MyAppState extends State<MyApp> {
   Future<void> updateUI(dynamic data) async {
     final log = await FileManager.readLogFile();
 
-    LocationDto locationDto = (data != null) ? LocationDto.fromJson(data) : null;
+    LocationDto? locationDto = (data != null) ? LocationDto.fromJson(data) : null;
+
+    if (locationDto == null) return;
+
     await _updateNotificationText(locationDto);
 
     setState(() {
@@ -70,14 +71,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _updateNotificationText(LocationDto data) async {
-    if (data == null) {
-      return;
-    }
-
     await BackgroundLocator.updateNotificationText(
-        title: "new location received",
-        msg: "${DateTime.now()}",
-        bigMsg: "${data.latitude}, ${data.longitude}");
+        title: "new location received", msg: "${DateTime.now()}", bigMsg: "${data.latitude}, ${data.longitude}");
   }
 
   Future<void> initPlatformState() async {
@@ -85,9 +80,9 @@ class _MyAppState extends State<MyApp> {
     await BackgroundLocator.initialize();
     logStr = await FileManager.readLogFile();
     print('Initialization done');
-    final _isRunning = await BackgroundLocator.isServiceRunning();
+    final running = await BackgroundLocator.isServiceRunning();
     setState(() {
-      isRunning = _isRunning;
+      isRunning = running;
     });
     print('Running ${isRunning.toString()}');
   }
@@ -126,7 +121,7 @@ class _MyAppState extends State<MyApp> {
     );
     String msgStatus = "-";
     if (isRunning != null) {
-      if (isRunning) {
+      if (isRunning!) {
         msgStatus = 'Is running';
       } else {
         msgStatus = 'Is not running';
@@ -159,19 +154,19 @@ class _MyAppState extends State<MyApp> {
 
   void onStop() async {
     await BackgroundLocator.unRegisterLocationUpdate();
-    final _isRunning = await BackgroundLocator.isServiceRunning();
+    final bool running = await BackgroundLocator.isServiceRunning();
     setState(() {
-      isRunning = _isRunning;
+      isRunning = running;
     });
   }
 
   void _onStart() async {
     if (await _checkLocationPermission()) {
       await _startLocator();
-      final _isRunning = await BackgroundLocator.isServiceRunning();
+      final running = await BackgroundLocator.isServiceRunning();
 
       setState(() {
-        isRunning = _isRunning;
+        isRunning = running;
         lastLocation = null;
       });
     } else {
@@ -193,27 +188,18 @@ class _MyAppState extends State<MyApp> {
         } else {
           return false;
         }
-        break;
       case PermissionStatus.granted:
         return true;
-        break;
-      default:
-        return false;
-        break;
     }
   }
 
-  Future<void> _startLocator() async{
+  Future<void> _startLocator() async {
     Map<String, dynamic> data = {'countInit': 1};
     return await BackgroundLocator.registerLocationUpdate(LocationCallbackHandler.callback,
         initCallback: LocationCallbackHandler.initCallback,
         initDataCallback: data,
         disposeCallback: LocationCallbackHandler.disposeCallback,
-        iosSettings: IOSSettings(
-            accuracy: LocationAccuracy.NAVIGATION,
-            distanceFilter: 0,
-            stopWithTerminate: true
-        ),
+        iosSettings: IOSSettings(accuracy: LocationAccuracy.NAVIGATION, distanceFilter: 0, stopWithTerminate: true),
         autoStop: false,
         androidSettings: AndroidSettings(
             accuracy: LocationAccuracy.NAVIGATION,
@@ -227,7 +213,6 @@ class _MyAppState extends State<MyApp> {
                 notificationBigMsg:
                     'Background location is on to keep the app up-tp-date with your location. This is required for main features to work properly when the app is not running.',
                 notificationIconColor: Colors.grey,
-                notificationTapCallback:
-                    LocationCallbackHandler.notificationCallback)));
+                notificationTapCallback: LocationCallbackHandler.notificationCallback)));
   }
 }
