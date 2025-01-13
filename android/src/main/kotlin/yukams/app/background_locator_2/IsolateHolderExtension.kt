@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.Priority
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -93,11 +94,11 @@ fun getLocationRequest(intent: Intent): LocationRequestOptions {
 
 fun getAccuracy(key: Int): Int {
     return when (key) {
-        0 -> LocationRequest.PRIORITY_NO_POWER
-        1 -> LocationRequest.PRIORITY_LOW_POWER
-        2 -> LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        3 -> LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        4 -> LocationRequest.PRIORITY_HIGH_ACCURACY
-        else -> LocationRequest.PRIORITY_HIGH_ACCURACY
+        0 -> Priority.PRIORITY_PASSIVE
+        1 -> Priority.PRIORITY_LOW_POWER
+        2 -> Priority.PRIORITY_BALANCED_POWER_ACCURACY
+        3 -> Priority.PRIORITY_BALANCED_POWER_ACCURACY
+        4 -> Priority.PRIORITY_HIGH_ACCURACY
+        else -> Priority.PRIORITY_HIGH_ACCURACY
     }
 }

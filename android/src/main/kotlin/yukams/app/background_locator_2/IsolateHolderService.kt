@@ -187,10 +187,22 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
             intent.getStringExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_BIG_MSG).toString()
         val iconNameDefault = "ic_launcher"
         var iconName = intent.getStringExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_ICON)
-        if (iconName == null || iconName.isEmpty()) {
+        if (iconName.isNullOrEmpty()) {
             iconName = iconNameDefault
         }
-        icon = resources.getIdentifier(iconName, "mipmap", packageName)
+        
+        icon = try {
+            val resourceField = R.mipmap::class.java.getField(iconName)
+            resourceField.getInt(null)
+        } catch (e: Exception) {
+            try {
+                val defaultField = R.mipmap::class.java.getField(iconNameDefault)
+                defaultField.getInt(null)
+            } catch (e: Exception) {
+                0
+            }
+        }
+        
         notificationIconColor =
             intent.getLongExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_ICON_COLOR, 0).toInt()
         wakeLockTime = intent.getIntExtra(Keys.SETTINGS_ANDROID_WAKE_LOCK_TIME, 60) * 60 * 1000L
@@ -221,7 +233,15 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
         }
 
         locatorClient?.removeLocationUpdates()
-        stopForeground(true)
+        
+        // 修改这里的stopForeground调用
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
+        
         stopSelf()
 
         pluggables.forEach {
@@ -275,7 +295,7 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
             }
 
             result.success(null)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
 
         }
     }
@@ -322,7 +342,7 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
 
                 sendLocationEvent(result)
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
 
         }
     }
