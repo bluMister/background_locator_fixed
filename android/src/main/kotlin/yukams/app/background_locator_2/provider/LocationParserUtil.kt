@@ -7,7 +7,7 @@ import yukams.app.background_locator_2.Keys
 
 class LocationParserUtil {
     companion object {
-        fun getLocationMapFromLocation(location: Location): Map<String, Any> {
+        fun getLocationMapFromLocation(location: Location): HashMap<Any, Any> {
             val speedAccuracy = when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> location.speedAccuracyMetersPerSecond
                 else -> 0f
@@ -20,7 +20,7 @@ class LocationParserUtil {
                 location.isFromMockProvider
             }
 
-            return mapOf(
+            return hashMapOf(
                 Keys.ARG_IS_MOCKED to isMocked,
                 Keys.ARG_LATITUDE to location.latitude,
                 Keys.ARG_LONGITUDE to location.longitude,
@@ -34,7 +34,7 @@ class LocationParserUtil {
             )
         }
 
-        fun getLocationMapFromLocation(locationResult: LocationResult?): Map<String, Any>? {
+        fun getLocationMapFromLocation(locationResult: LocationResult?): HashMap<Any, Any>? {
             val location = locationResult?.lastLocation ?: return null
             return getLocationMapFromLocation(location)
         }

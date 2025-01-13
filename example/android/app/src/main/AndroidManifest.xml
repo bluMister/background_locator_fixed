@@ -25,7 +25,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             </activity>
-                    <receiver android:name="yukams.app.background_locator_2.BootBroadcastReceiver"
+                    <receiver
+                        android:exported="true"
+                        android:name="yukams.app.background_locator_2.BootBroadcastReceiver"
                 android:enabled="true">
                 <intent-filter>
                     <action android:name="android.intent.action.BOOT_COMPLETED"/>

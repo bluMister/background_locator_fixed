@@ -190,18 +190,8 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
         if (iconName.isNullOrEmpty()) {
             iconName = iconNameDefault
         }
-        
-        icon = try {
-            val resourceField = R.mipmap::class.java.getField(iconName)
-            resourceField.getInt(null)
-        } catch (e: Exception) {
-            try {
-                val defaultField = R.mipmap::class.java.getField(iconNameDefault)
-                defaultField.getInt(null)
-            } catch (e: Exception) {
-                0
-            }
-        }
+
+        icon = resources.getIdentifier(iconName, "mipmap", packageName)
         
         notificationIconColor =
             intent.getLongExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_ICON_COLOR, 0).toInt()
