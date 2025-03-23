@@ -72,19 +72,8 @@ class AndroidSettings extends LocatorSettings {
       Keys.SETTINGS_ANDROID_NOTIFICATION_MSG: androidNotificationSettings.notificationMsg,
       Keys.SETTINGS_ANDROID_NOTIFICATION_BIG_MSG: androidNotificationSettings.notificationBigMsg,
       Keys.SETTINGS_ANDROID_NOTIFICATION_ICON: androidNotificationSettings.notificationIcon,
-      Keys.SETTINGS_ANDROID_NOTIFICATION_ICON_COLOR: androidNotificationSettings.notificationIconColor.colorValue,
+      Keys.SETTINGS_ANDROID_NOTIFICATION_ICON_COLOR: androidNotificationSettings.notificationIconColor.value,
       Keys.SETTINGS_ANDROID_LOCATION_CLIENT: client.index
     };
-  }
-}
-
-extension ColorExtension on Color {
-  int get colorValue {
-    final a = (this.a * 255).round();
-    final r = (this.r * 255).round();
-    final g = (this.g * 255).round();
-    final b = (this.b * 255).round();
-
-    return (a << 24) | (r << 16) | (g << 8) | b;
   }
 }
